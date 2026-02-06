@@ -317,3 +317,6 @@ format:
     fi
     # Run shfmt on all Bash scripts
     /usr/bin/find . -iname "*.sh" -type f -exec shfmt --write "{}" ';'
+
+setup-ai-memory:
+    rpm-ostree kargs --append='amdgpu.gttsize=118000' --append='amd_iommu=off' --append='ttm.pages_limit=27648000'
