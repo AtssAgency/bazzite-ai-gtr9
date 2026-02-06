@@ -1,17 +1,19 @@
-# 1. Base Image
 FROM ghcr.io/ublue-os/bazzite:stable
 
-# 2. Install LLM & GPU Tools (ROCm for Strix Halo)
+# 1. Install LLM & GPU Tools
+# Combined into one RUN to reduce layers and prevent cache errors
 RUN rpm-ostree install \
     rocm-opencl \
     rocm-hip \
     rocm-clinfo \
     git-lfs \
-    python3-pip
+    python3-pip && \
+    rpm-ostree cleanup -a
 
-# 3. Add Ollama Binary
-RUN curl -L https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama && \
+# 2. Add Ollama Binary
+# Using -L to follow redirects and --retry for network stability
+RUN curl -L --retry 3 https://ollama.com/download/ollama-linux-amd64 -o /usr/bin/ollama && \
     chmod +x /usr/bin/ollama
 
-# 4. Clean up
-RUN rpm-ostree cleanup -a
+# 3. Ensure directories exist for local scripts (prevents "no such file" errors)
+RUN mkdir -p /usr/bin /usr/lib/systemd/system
